@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កម្មវិធីទស្សន៍ទាយតាមក្បួនណាប៉ូឡេអុង</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #f0fff4; /* Light green background */
+            border-radius: 16px; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e2e8f0; /* Light border */
+        }
+        input[type="text"],
+        input[type="date"] {
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #cbd5e0; /* Light border */
+            border-radius: 8px; /* Rounded input fields */
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus,
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #6366f1; /* Indigo focus color */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Light focus shadow */
+        }
+        button {
+            background-color: #6366f1; /* Indigo button */
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            margin-top: 10px; /* Add some space between buttons */
+        }
+        button:hover {
+            background-color: #4f46e5; /* Darker indigo on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+        #result, #detailedPrediction, #phoneResult, #detailedPhonePrediction, #zodiacResult, #detailedZodiacPrediction, #dailyDangerResult, #detailedDailyDangerPrediction {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: #e0f2fe; /* Light blue background for result */
+            border-radius: 12px;
+            border: 1px solid #bfdbfe;
+            color: #1e40af; /* Dark blue text */
+            font-size: 18px;
+            font-weight: 500;
+            min-height: 80px; /* Ensure space even if no result */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left; /* Align text left for better readability */
+        }
+        #detailedPrediction, #detailedPhonePrediction, #detailedZodiacPrediction, #detailedDailyDangerPrediction {
+            background-color: #ecfdf5; /* Light green for detailed prediction */
+            border-color: #a7f3d0;
+            color: #065f46;
+            margin-top: 16px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c; /* Dark text */
+            margin-bottom: 24px;
+        }
+        .label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568; /* Gray text */
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #6366f1;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .section-separator {
+            border-top: 1px dashed #cbd5e0;
+            margin-top: 32px;
+            margin-bottom: 32px;
+        }
+        .zodiac-info-section {
+            display: none; /* Hidden by default */
+            margin-top: 32px;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 24px;
+            background-color: #f8fafc; /* Very light blue-gray */
+            text-align: left;
+        }
+        .zodiac-info-section h3 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        .zodiac-info-section p {
+            margin-bottom: 8px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .zodiac-info-section strong {
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">កម្មវិធីទស្សន៍ទាយតាមក្បួនណាប៉ូឡេអុង</h1>
+
+        <!-- Name and DOB Prediction Section -->
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">ទស្សន៍ទាយតាមឈ្មោះ និងថ្ងៃខែឆ្នាំកំណើត</h2>
+        <div class="mb-4">
+            <label for="nameInput" class="label">ឈ្មោះពេញ:</label>
+            <input type="text" id="nameInput" placeholder="បញ្ចូលឈ្មោះពេញរបស់អ្នក">
+        </div>
+
+        <div class="mb-6">
+            <label for="dobInput" class="label">ថ្ងៃខែឆ្នាំកំណើត:</label>
+            <input type="date" id="dobInput">
+        </div>
+
+        <button onclick="predict()">ទស្សន៍ទាយ</button>
+        <button id="getAdviceBtn" onclick="getDetailedAdvice()" style="display: none;">✨ ទទួលបានដំបូន្មានជីវិត (ឈ្មោះ/ថ្ងៃខែឆ្នាំកំណើត) ✨</button>
+
+        <div id="result" class="mt-8">
+            <!-- លទ្ធផលទស្សន៍ទាយនឹងបង្ហាញនៅទីនេះ -->
+            សូមបញ្ចូលព័ត៌មានរបស់អ្នកដើម្បីទស្សន៍ទាយ។
+        </div>
+
+        <div id="detailedPrediction" class="mt-8" style="display: none;">
+            <!-- ដំបូន្មានលម្អិតនឹងបង្ហាញនៅទីនេះ -->
+        </div>
+
+        <div class="section-separator"></div>
+
+        <!-- Phone Number Prediction Section -->
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">ទស្សន៍ទាយតាមលេខទូរស័ព្ទ</h2>
+        <div class="mb-4">
+            <label for="phoneInput" class="label">លេខទូរស័ព្ទ:</label>
+            <input type="text" id="phoneInput" placeholder="បញ្ចូលលេខទូរស័ព្ទរបស់អ្នក (ឧទាហរណ៍: 012345678)">
+        </div>
+
+        <button onclick="predictPhoneNumber()">ទស្សន៍ទាយលេខទូរស័ព្ទ</button>
+        <button id="getPhoneAdviceBtn" onclick="getDetailedPhoneAdvice()" style="display: none;">✨ ទទួលបានដំបូន្មានជីវិត (លេខទូរស័ព្ទ) ✨</button>
+
+        <div id="phoneResult" class="mt-8">
+            <!-- លទ្ធផលទស្សន៍ទាយលេខទូរស័ព្ទនឹងបង្ហាញនៅទីនេះ -->
+            សូមបញ្ចូលលេខទូរស័ព្ទរបស់អ្នកដើម្បីទស្សន៍ទាយ។
+        </div>
+
+        <div id="detailedPhonePrediction" class="mt-8" style="display: none;">
+            <!-- ដំបូន្មានលម្អិតសម្រាប់លេខទូរស័ព្ទនឹងបង្ហាញនៅទីនេះ -->
+        </div>
+
+        <div class="section-separator"></div>
+
+        <!-- Zodiac Prediction Section -->
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">ទស្សន៍ទាយតាមតារានិករ</h2>
+        <div class="mb-4">
+            <label for="zodiacDateInput" class="label">ថ្ងៃខែឆ្នាំកំណើត (សម្រាប់តារានិករ):</label>
+            <input type="date" id="zodiacDateInput">
+        </div>
+
+        <button onclick="predictZodiac()">ទស្សន៍ទាយតារានិករ</button>
+        <button id="getZodiacAdviceBtn" onclick="getDetailedZodiacAdvice()" style="display: none;">✨ ទទួលបានដំបូន្មានជីវិត (តារានិករ) ✨</button>
+
+        <div id="zodiacResult" class="mt-8">
+            <!-- លទ្ធផលទស្សន៍ទាយតារានិករនឹងបង្ហាញនៅទីនេះ -->
+            សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើតរបស់អ្នកដើម្បីទស្សន៍ទាយតារានិករ។
+        </div>
+
+        <div id="detailedZodiacPrediction" class="mt-8" style="display: none;">
+            <!-- ដំបូន្មានលម្អិតសម្រាប់តារានិករនឹងបង្ហាញនៅទីនេះ -->
+        </div>
+
+        <div class="section-separator"></div>
+
+        <!-- Daily Danger Prediction Section -->
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">ទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃ</h2>
+        <div class="mb-4">
+            <label for="dailyDangerDateInput" class="label">ថ្ងៃខែ (សម្រាប់គ្រោះថ្នាក់ប្រចាំថ្ងៃ):</label>
+            <input type="date" id="dailyDangerDateInput">
+        </div>
+
+        <button onclick="predictDailyDanger()">ទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃ</button>
+        <button id="getDailyDangerAdviceBtn" onclick="getDetailedDailyDangerAdvice()" style="display: none;">✨ ទទួលបានដំបូន្មានគ្រោះថ្នាក់ប្រចាំថ្ងៃ ✨</button>
+
+        <div id="dailyDangerResult" class="mt-8">
+            <!-- លទ្ធផលទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃនឹងបង្ហាញនៅទីនេះ -->
+            សូមបញ្ចូលថ្ងៃខែសម្រាប់ទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃ។
+        </div>
+
+        <div id="detailedDailyDangerPrediction" class="mt-8" style="display: none;">
+            <!-- ដំបូន្មានលម្អិតសម្រាប់គ្រោះថ្នាក់ប្រចាំថ្ងៃនឹងបង្ហាញនៅទីនេះ -->
+        </div>
+
+        <div class="section-separator"></div>
+
+        <!-- Zodiac Information Section -->
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">ព័ត៌មានអំពីតារានិករ</h2>
+        <button onclick="toggleZodiacInfo()">បង្ហាញ/លាក់ព័ត៌មានតារានិករ</button>
+
+        <div id="zodiacInfoSection" class="zodiac-info-section">
+            <h3>Aries (មេសៈ)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២១ ខែមីនា ដល់ ថ្ងៃទី ១៩ ខែមេសា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាអ្នកត្រួសត្រាយផ្លូវ ក្លាហាន មានថាមពល និងមហិច្ឆតា។ ចូលចិត្តប្រកួតប្រជែង និងជាអ្នកដឹកនាំ។</p>
+
+            <h3 class="mt-6">Taurus (ឧសភៈ)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២០ ខែមេសា ដល់ ថ្ងៃទី ២០ ខែឧសភា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សរឹងមាំ គួរឱ្យទុកចិត្ត មានការតាំងចិត្តខ្ពស់ ចូលចិត្តភាពសុខស្រួល ស្រឡាញ់សោភ័ណភាព និងស្ថិរភាព។</p>
+
+            <h3 class="mt-6">Gemini (មិថុនា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២១ ខែឧសភា ដល់ ថ្ងៃទី ២០ ខែមិថុនា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សឆ្លាតវៃ សម្របខ្លួនបានល្អ ចូលចិត្តទំនាក់ទំនង និងចង់ដឹងចង់ឮ។ អាចផ្លាស់ប្តូរអារម្មណ៍លឿន។</p>
+
+            <h3 class="mt-6">Cancer (កក្កដា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២១ ខែមិថុនា ដល់ ថ្ងៃទី ២២ ខែកក្កដា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សយកចិត្តទុកដាក់ មានអារម្មណ៍ជ្រាលជ្រៅ ការពារគ្រួសារ និងមានវិចារណញ្ញាណ។ ចូលចិត្តនៅផ្ទះ និងស្មោះត្រង់។</p>
+
+            <h3 class="mt-6">Leo (សីហា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២៣ ខែកក្កដា ដល់ ថ្ងៃទី ២២ ខែសីហា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាអ្នកដឹកនាំមានមហិច្ឆតា ចូលចិត្តភាពលេចធ្លោ ក្លាហាន និងសប្បុរស។ ចូលចិត្តការយកចិត្តទុកដាក់។</p>
+
+            <h3 class="mt-6">Virgo (កញ្ញា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២៣ ខែសីហា ដល់ ថ្ងៃទី ២២ ខែកញ្ញា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សល្អិតល្អន់ ឧស្សាហ៍ព្យាយាម ចូលចិត្តជួយអ្នកដទៃ និងមានការវិភាគ។ ចូលចិត្តភាពល្អឥតខ្ចោះ។</p>
+
+            <h3 class="mt-6">Libra (តុលា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២៣ ខែកញ្ញា ដល់ ថ្ងៃទី ២២ ខែតុលា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សមានតុល្យភាព យុត្តិធម៌ ចូលចិត្តភាពសុខដុមរមនា និងមានមន្តស្នេហ៍។ ចូលចិត្តភាពស្រស់ស្អាត។</p>
+
+            <h3 class="mt-6">Scorpio (វិច្ឆិកា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២៣ ខែតុលា ដល់ ថ្ងៃទី ២១ ខែវិច្ឆិកា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សមានអាថ៌កំបាំង ស្មោះត្រង់ មានឆន្ទៈមុតមាំ និងអារម្មណ៍ខ្លាំងក្លា។ ចូលចិត្តស្វែងរកការពិត។</p>
+
+            <h3 class="mt-6">Sagittarius (ធ្នូ)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២២ ខែវិច្ឆិកា ដល់ ថ្ងៃទី ២១ ខែធ្នូ</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សចូលចិត្តផ្សងព្រេង សុទិដ្ឋិនិយម ស្វែងរកចំណេះដឹង និងមានសេរីភាព។ ចូលចិត្តការធ្វើដំណើរ។</p>
+
+            <h3 class="mt-6">Capricorn (មករា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២២ ខែធ្នូ ដល់ ថ្ងៃទី ១៩ ខែមករា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សមានវិន័យ តស៊ូ មានមហិច្ឆតាខ្ពស់ និងគួរឱ្យទុកចិត្ត។ ផ្តោតលើគោលដៅ និងភាពជោគជ័យ។</p>
+
+            <h3 class="mt-6">Aquarius (កុម្ភៈ)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ២០ ខែមករា ដល់ ថ្ងៃទី ១៨ ខែកុម្ភៈ</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សមានគំនិតច្នៃប្រឌិត ឯករាជ្យ ចូលចិត្តជួយសង្គម និងមានទស្សនៈវិស័យ។ ចូលចិត្តភាពថ្មី។</p>
+
+            <h3 class="mt-6">Pisces (មីនា)</h3>
+            <p><strong>កាលបរិច្ឆេទ:</strong> ថ្ងៃទី ១៩ ខែកុម្ភៈ ដល់ ថ្ងៃទី ២០ ខែមីនា</p>
+            <p><strong>លក្ខណៈ:</strong> ជាមនុស្សរសើប មានមេត្តាធម៌ មានវិចារណញ្ញាណ និងចូលចិត្តសិល្បៈ។ មានភាពយល់ចិត្ត។</p>
+        </div>
+    </div>
+
+    <script type="module">
+        let finalPredictionNumber = 0; // Global variable to store the calculated number for name/DOB
+        let userName = '';
+        let userDob = '';
+
+        let finalPhoneNumberPredictionNumber = 0; // Global variable for phone number prediction
+        let userPhoneNumber = '';
+
+        let userZodiacDate = ''; // Global variable for zodiac date
+        let predictedZodiacSign = ''; // Global variable for predicted zodiac sign
+
+        let predictedDailyDangerNumber = 0; // Global variable for daily danger prediction
+        let userDailyDangerDate = ''; // Global variable for daily danger date
+
+        // មុខងារសម្រាប់គណនាផលបូកលេខតែមួយខ្ទង់
+        function getSingleDigitSum(num) {
+            while (num > 9) {
+                num = String(num).split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+            }
+            return num;
+        }
+
+        // មុខងារសម្រាប់បំប្លែងអក្សរទៅជាលេខ
+        function letterToNumber(char) {
+            const charCode = char.toUpperCase().charCodeAt(0);
+            if (charCode >= 65 && charCode <= 90) { // A-Z
+                return charCode - 64; // A=1, B=2, ... Z=26
+            }
+            return 0; // សម្រាប់តួអក្សរមិនមែនជាអក្សរ
+        }
+
+        // មុខងារសម្រាប់ទស្សន៍ទាយឈ្មោះ និងថ្ងៃខែឆ្នាំកំណើត
+        window.predict = function() {
+            userName = document.getElementById('nameInput').value.trim();
+            userDob = document.getElementById('dobInput').value; // YYYY-MM-DD format
+
+            if (!userName || !userDob) {
+                document.getElementById('result').textContent = 'សូមបញ្ចូលឈ្មោះ និងថ្ងៃខែឆ្នាំកំណើតរបស់អ្នក។';
+                document.getElementById('getAdviceBtn').style.display = 'none';
+                document.getElementById('detailedPrediction').style.display = 'none';
+                return;
+            }
+
+            // គណនាផលបូកលេខពីឈ្មោះ
+            let nameSum = 0;
+            for (let i = 0; i < userName.length; i++) {
+                nameSum += letterToNumber(userName[i]);
+            }
+            const singleDigitNameSum = getSingleDigitSum(nameSum);
+
+            // គណនាផលបូកលេខពីថ្ងៃខែឆ្នាំកំណើត
+            let dobSum = 0;
+            // Split date into year, month, day and sum digits
+            const dobParts = userDob.split('-'); // [YYYY, MM, DD]
+            dobParts.forEach(part => {
+                for (let i = 0; i < part.length; i++) {
+                    dobSum += parseInt(part[i]);
+                }
+            });
+            const singleDigitDobSum = getSingleDigitSum(dobSum);
+
+            // ផលបូកសរុបនៃឈ្មោះ និងថ្ងៃខែឆ្នាំកំណើត
+            const totalSum = singleDigitNameSum + singleDigitDobSum;
+            finalPredictionNumber = getSingleDigitSum(totalSum); // Store in global variable
+
+            let predictionText = '';
+            switch (finalPredictionNumber) {
+                case 1:
+                    predictionText = 'អ្នកជាអ្នកដឹកនាំដែលមានភាពក្លាហាន និងមានមហិច្ឆតាខ្ពស់។ អ្នកតែងតែចង់ឈ្នះ និងនាំមុខគេ។';
+                    break;
+                case 2:
+                    predictionText = 'អ្នកជាមនុស្សដែលសហការល្អ ងាយសម្របខ្លួន និងមានតុល្យភាព។ អ្នកចូលចិត្តធ្វើការជាក្រុម និងមានភាពសុខដុមរមនា។';
+                    break;
+                case 3:
+                    predictionText = 'អ្នកជាមនុស្សដែលមានគំនិតច្នៃប្រឌិតខ្ពស់ រីករាយ និងចូលចិត្តទំនាក់ទំនង។ អ្នកមានទេពកោសល្យក្នុងការបញ្ចេញមតិ។';
+                    break;
+                case 4:
+                    predictionText = 'អ្នកជាមនុស្សដែលមានការតាំងចិត្តខ្ពស់ ឧស្សាហ៍ព្យាយាម និងគួរឱ្យទុកចិត្ត។ អ្នកចូលចិត្តរៀបចំផែនការ និងធ្វើការដោយមានរបៀបរៀបរយ។';
+                    break;
+                case 5:
+                    predictionText = 'អ្នកជាមនុស្សដែលចូលចិត្តផ្សងព្រេង ផ្លាស់ប្តូរ និងមានសេរីភាព។ អ្នកមិនចូលចិត្តនៅស្ងៀមមួយកន្លែងទេ។';
+                    break;
+                case 6:
+                    predictionText = 'អ្នកជាមនុស្សដែលមានការទទួលខុសត្រូវខ្ពស់ ចេះស្រលាញ់ និងយកចិត្តទុកដាក់ចំពោះអ្នកដទៃ។ អ្នកជាទីពឹងសម្រាប់គ្រួសារ និងមិត្តភក្តិ។';
+                    break;
+                case 7:
+                    predictionText = 'អ្នកជាមនុស្សដែលមានគំនិតជ្រៅជ្រះ ចូលចិត្តស្រាវជ្រាវ និងវិភាគ។ អ្នកតែងតែស្វែងរកការពិត និងចំណេះដឹង។';
+                    break;
+                case 8:
+                    predictionText = 'អ្នកជាមនុស្សដែលមានអំណាច ជោគជ័យ និងមានសមត្ថភាពក្នុងការគ្រប់គ្រង។ អ្នកមានទេពកោសល្យក្នុងការរកស៊ី និងសម្រេចគោលដៅធំៗ។';
+                    break;
+                case 9:
+                    predictionText = 'អ្នកជាមនុស្សដែលមានចិត្តទូលាយ មេត្តាធម៌ និងមានសេចក្តីស្រលាញ់ចំពោះមនុស្សជាតិ។ អ្នកតែងតែគិតពីប្រយោជន៍រួម។';
+                    break;
+                default:
+                    predictionText = 'មិនអាចទស្សន៍ទាយបានទេ។ សូមសាកល្បងម្តងទៀត។';
+            }
+
+            document.getElementById('result').textContent = `លេខទស្សន៍ទាយរបស់អ្នកគឺ ${finalPredictionNumber}។ ${predictionText}`;
+            document.getElementById('getAdviceBtn').style.display = 'block'; // Show the new button
+            document.getElementById('detailedPrediction').style.display = 'none'; // Hide detailed prediction until requested
+        };
+
+        // មុខងារសម្រាប់ទទួលបានដំបូន្មានលម្អិតពី Gemini API (សម្រាប់ឈ្មោះ/ថ្ងៃខែឆ្នាំកំណើត)
+        window.getDetailedAdvice = async function() {
+            const adviceDiv = document.getElementById('detailedPrediction');
+            adviceDiv.style.display = 'flex'; // Show the div
+            adviceDiv.innerHTML = '<div class="loading-spinner"></div><p class="ml-4">កំពុងបង្កើតដំបូន្មាន...</p>'; // Show loading
+
+            if (!userName || !userDob || finalPredictionNumber === 0) {
+                adviceDiv.textContent = 'សូមទស្សន៍ទាយជាមុនសិន ដើម្បីទទួលបានដំបូន្មានលម្អិត។';
+                return;
+            }
+
+            // Construct the prompt for the LLM
+            const prompt = `Based on the numerology number ${finalPredictionNumber} which suggests the following characteristics: "${document.getElementById('result').textContent.split('។')[1].trim()}", and considering the name "${userName}" and birthdate "${userDob}", provide a personalized paragraph of life advice focusing on strengths, potential challenges, and opportunities for growth. Write this advice in Khmer.`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas will automatically provide the API key
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    adviceDiv.textContent = text; // Display the generated advice
+                } else {
+                    adviceDiv.textContent = 'មិនអាចបង្កើតដំបូន្មានបានទេ។ សូមសាកល្បងម្តងទៀត។';
+                }
+            } catch (error) {
+                console.error('Error fetching detailed advice:', error);
+                adviceDiv.textContent = 'មានបញ្ហាពេលបង្កើតដំបូន្មាន។ សូមសាកល្បងម្តងទៀត។';
+            }
+        };
+
+        // មុខងារសម្រាប់ទស្សន៍ទាយលេខទូរស័ព្ទ
+        window.predictPhoneNumber = function() {
+            userPhoneNumber = document.getElementById('phoneInput').value.trim();
+
+            if (!userPhoneNumber) {
+                document.getElementById('phoneResult').textContent = 'សូមបញ្ចូលលេខទូរស័ព្ទរបស់អ្នក។';
+                document.getElementById('getPhoneAdviceBtn').style.display = 'none';
+                document.getElementById('detailedPhonePrediction').style.display = 'none';
+                return;
+            }
+
+            // Remove any non-digit characters from the phone number
+            const cleanedPhoneNumber = userPhoneNumber.replace(/\D/g, '');
+
+            if (cleanedPhoneNumber.length === 0) {
+                document.getElementById('phoneResult').textContent = 'លេខទូរស័ព្ទមិនត្រឹមត្រូវ។ សូមបញ្ចូលលេខតែប៉ុណ្ណោះ។';
+                document.getElementById('getPhoneAdviceBtn').style.display = 'none';
+                document.getElementById('detailedPhonePrediction').style.display = 'none';
+                return;
+            }
+
+            let phoneSum = 0;
+            for (let i = 0; i < cleanedPhoneNumber.length; i++) {
+                phoneSum += parseInt(cleanedPhoneNumber[i]);
+            }
+            finalPhoneNumberPredictionNumber = getSingleDigitSum(phoneSum);
+
+            let predictionText = '';
+            switch (finalPhoneNumberPredictionNumber) {
+                case 1:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីភាពជាអ្នកដឹកនាំ ឯករាជ្យ និងការចាប់ផ្តើមថ្មី។';
+                    break;
+                case 2:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីភាពសហការ ការទូត និងតុល្យភាព។';
+                    break;
+                case 3:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីភាពច្នៃប្រឌិត ការបញ្ចេញមតិ និងភាពរីករាយ។';
+                    break;
+                case 4:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីស្ថិរភាព ការងារឧស្សាហ៍ព្យាយាម និងការរៀបចំ។';
+                    break;
+                case 5:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីការផ្លាស់ប្តូរ ភាពបត់បែន និងការផ្សងព្រេង។';
+                    break;
+                case 6:
+                    predictionText = 'លេខទូរស័ព្ឍនេះបង្ហាញពីការទទួលខុសត្រូវ ភាពចុះសម្រុងគ្នា និងការយកចិត្តទុកដាក់។';
+                    break;
+                case 7:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីការវិភាគ ភាពខាងវិញ្ញាណ និងការស្វែងរកចំណេះដឹង។';
+                    break;
+                case 8:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីភាពជោគជ័យផ្នែកហិរញ្ញវត្ថុ អំណាច និងការគ្រប់គ្រង។';
+                    break;
+                case 9:
+                    predictionText = 'លេខទូរស័ព្ទនេះបង្ហាញពីមនុស្សធម៌ ការអាណិតអាសូរ និងការបញ្ចប់វដ្ត។';
+                    break;
+                default:
+                    predictionText = 'មិនអាចទស្សន៍ទាយបានទេ។ សូមសាកល្បងម្តងទៀត។';
+            }
+
+            document.getElementById('phoneResult').textContent = `លេខទស្សន៍ទាយសម្រាប់លេខទូរស័ព្ទរបស់អ្នកគឺ ${finalPhoneNumberPredictionNumber}។ ${predictionText}`;
+            document.getElementById('getPhoneAdviceBtn').style.display = 'block';
+            document.getElementById('detailedPhonePrediction').style.display = 'none';
+        };
+
+        // មុខងារសម្រាប់ទទួលបានដំបូន្មានលម្អិតពី Gemini API (សម្រាប់លេខទូរស័ព្ទ)
+        window.getDetailedPhoneAdvice = async function() {
+            const adviceDiv = document.getElementById('detailedPhonePrediction');
+            adviceDiv.style.display = 'flex';
+            adviceDiv.innerHTML = '<div class="loading-spinner"></div><p class="ml-4">កំពុងបង្កើតដំបូន្មាន...</p>';
+
+            if (!userPhoneNumber || finalPhoneNumberPredictionNumber === 0) {
+                adviceDiv.textContent = 'សូមទស្សន៍ទាយលេខទូរស័ព្ទជាមុនសិន ដើម្បីទទួលបានដំបូន្មានលម្អិត។';
+                return;
+            }
+
+            const prompt = `Based on the numerology number ${finalPhoneNumberPredictionNumber} derived from the phone number "${userPhoneNumber}", which suggests the following characteristics: "${document.getElementById('phoneResult').textContent.split('។')[1].trim()}", provide a personalized paragraph of advice related to communication, connections, and opportunities associated with this phone number. Write this advice in Khmer.`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    adviceDiv.textContent = text;
+                } else {
+                    adviceDiv.textContent = 'មិនអាចបង្កើតដំបូន្មានបានទេ។ សូមសាកល្បងម្តងទៀត។';
+                }
+            } catch (error) {
+                console.error('Error fetching detailed phone advice:', error);
+                adviceDiv.textContent = 'មានបញ្ហាពេលបង្កើតដំបូន្មាន។ សូមសាកល្បងម្តងទៀត។';
+            }
+        };
+
+        // មុខងារសម្រាប់កំណត់តារានិករ
+        function getZodiacSign(month, day) {
+            if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return 'Aries (មេសៈ)';
+            if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return 'Taurus (ឧសភៈ)';
+            if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return 'Gemini (មិថុនា)';
+            if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return 'Cancer (កក្កដា)';
+            if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return 'Leo (សីហា)';
+            if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return 'Virgo (កញ្ញា)';
+            if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return 'Libra (តុលា)';
+            if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return 'Scorpio (វិច្ឆិកា)';
+            if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return 'Sagittarius (ធ្នូ)';
+            if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return 'Capricorn (មករា)';
+            if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return 'Aquarius (កុម្ភៈ)';
+            if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return 'Pisces (មីនា)';
+            return 'មិនស្គាល់';
+        }
+
+        // មុខងារសម្រាប់ទស្សន៍ទាយតារានិករ
+        window.predictZodiac = function() {
+            userZodiacDate = document.getElementById('zodiacDateInput').value;
+
+            if (!userZodiacDate) {
+                document.getElementById('zodiacResult').textContent = 'សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើតរបស់អ្នកសម្រាប់តារានិករ។';
+                document.getElementById('getZodiacAdviceBtn').style.display = 'none';
+                document.getElementById('detailedZodiacPrediction').style.display = 'none';
+                return;
+            }
+
+            const dateParts = userZodiacDate.split('-'); // [YYYY, MM, DD]
+            const month = parseInt(dateParts[1]);
+            const day = parseInt(dateParts[2]);
+
+            predictedZodiacSign = getZodiacSign(month, day);
+
+            let zodiacDescription = '';
+            switch (predictedZodiacSign.split(' ')[0]) { // Use only the English name for switch
+                case 'Aries':
+                    zodiacDescription = 'អ្នកជាអ្នកត្រួសត្រាយផ្លូវ ក្លាហាន និងមានថាមពល។';
+                    break;
+                case 'Taurus':
+                    zodiacDescription = 'អ្នកជាមនុស្សរឹងមាំ គួរឱ្យទុកចិត្ត និងចូលចិត្តភាពសុខស្រួល។';
+                    break;
+                case 'Gemini':
+                    zodiacDescription = 'អ្នកជាមនុស្សឆ្លាត សម្របខ្លួនបានល្អ និងចូលចិត្តទំនាក់ទំនង។';
+                    break;
+                case 'Cancer':
+                    zodiacDescription = 'អ្នកជាមនុស្សយកចិត្តទុកដាក់ មានអារម្មណ៍ជ្រាលជ្រៅ និងការពារគ្រួសារ។';
+                    break;
+                case 'Leo':
+                    zodiacDescription = 'អ្នកជាអ្នកដឹកនាំ មានមហិច្ឆតា និងចូលចិត្តភាពលេចធ្លោ។';
+                    break;
+                case 'Virgo':
+                    zodiacDescription = 'អ្នកជាមនុស្សល្អិតល្អន់ ឧស្សាហ៍ព្យាយាម និងចូលចិត្តជួយអ្នកដទៃ។';
+                    break;
+                case 'Libra':
+                    zodiacDescription = 'អ្នកជាមនុស្សមានតុល្យភាព យុត្តិធម៌ និងចូលចិត្តភាពសុខដុមរមនា។';
+                    break;
+                case 'Scorpio':
+                    zodiacDescription = 'អ្នកជាមនុស្សមានអាថ៌កំបាំង ស្មោះត្រង់ និងមានឆន្ទៈមុតមាំ។';
+                    break;
+                case 'Sagittarius':
+                    zodiacDescription = 'អ្នកជាមនុស្សចូលចិត្តផ្សងព្រេង សុទិដ្ឋិនិយម និងស្វែងរកចំណេះដឹង។';
+                    break;
+                case 'Capricorn':
+                    zodiacDescription = 'អ្នកជាមនុស្សមានវិន័យ តស៊ូ និងមានមហិច្ឆតាខ្ពស់។';
+                    break;
+                case 'Aquarius':
+                    zodiacDescription = 'អ្នកជាមនុស្សមានគំនិតច្នៃប្រឌិត ឯករាជ្យ និងចូលចិត្តជួយសង្គម។';
+                    break;
+                case 'Pisces':
+                    zodiacDescription = 'អ្នកជាមនុស្សរសើប មានមេត្តាធម៌ និងមានវិចារណញ្ញាណខ្ពស់។';
+                    break;
+                default:
+                    zodiacDescription = 'មិនអាចកំណត់តារានិករបានទេ។';
+            }
+
+            document.getElementById('zodiacResult').textContent = `តារានិកររបស់អ្នកគឺ ${predictedZodiacSign}។ ${zodiacDescription}`;
+            document.getElementById('getZodiacAdviceBtn').style.display = 'block';
+            document.getElementById('detailedZodiacPrediction').style.display = 'none';
+        };
+
+        // មុខងារសម្រាប់ទទួលបានដំបូន្មានលម្អិតពី Gemini API (សម្រាប់តារានិករ)
+        window.getDetailedZodiacAdvice = async function() {
+            const adviceDiv = document.getElementById('detailedZodiacPrediction');
+            adviceDiv.style.display = 'flex';
+            adviceDiv.innerHTML = '<div class="loading-spinner"></div><p class="ml-4">កំពុងបង្កើតដំបូន្មាន...</p>';
+
+            if (!userZodiacDate || !predictedZodiacSign) {
+                adviceDiv.textContent = 'សូមទស្សន៍ទាយតារានិករជាមុនសិន ដើម្បីទទួលបានដំបូន្មានលម្អិត។';
+                return;
+            }
+
+            const prompt = `Based on the zodiac sign "${predictedZodiacSign}" which suggests the following characteristics: "${document.getElementById('zodiacResult').textContent.split('។')[1].trim()}", provide a personalized paragraph of life advice focusing on strengths, potential challenges, and opportunities for growth specific to this zodiac sign. Write this advice in Khmer.`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    adviceDiv.textContent = text;
+                } else {
+                    adviceDiv.textContent = 'មិនអាចបង្កើតដំបូន្មានបានទេ។ សូមសាកល្បងម្តងទៀត។';
+                }
+            } catch (error) {
+                console.error('Error fetching detailed zodiac advice:', error);
+                adviceDiv.textContent = 'មានបញ្ហាពេលបង្កើតដំបូន្មាន។ សូមសាកល្បងម្តងទៀត។';
+            }
+        };
+
+        // មុខងារសម្រាប់ទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃ
+        window.predictDailyDanger = function() {
+            userDailyDangerDate = document.getElementById('dailyDangerDateInput').value;
+
+            if (!userDailyDangerDate) {
+                document.getElementById('dailyDangerResult').textContent = 'សូមបញ្ចូលថ្ងៃខែសម្រាប់ទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃ។';
+                document.getElementById('getDailyDangerAdviceBtn').style.display = 'none';
+                document.getElementById('detailedDailyDangerPrediction').style.display = 'none';
+                return;
+            }
+
+            const dateParts = userDailyDangerDate.split('-'); // [YYYY, MM, DD]
+            const month = parseInt(dateParts[1]);
+            const day = parseInt(dateParts[2]);
+
+            // Simple numerology for daily danger: sum digits of month and day
+            let dangerSum = getSingleDigitSum(month) + getSingleDigitSum(day);
+            predictedDailyDangerNumber = getSingleDigitSum(dangerSum);
+
+            let dangerPredictionText = '';
+            switch (predictedDailyDangerNumber) {
+                case 1:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបបញ្ហាប្រឈមដែលទាមទារភាពជាអ្នកដឹកនាំ។ សូមប្រុងប្រយ័ត្នចំពោះការសម្រេចចិត្តរហ័ស។';
+                    break;
+                case 2:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបស្ថានភាពដែលទាមទារការសម្របសម្រួល។ សូមជៀសវាងជម្លោះ។';
+                    break;
+                case 3:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចប្រឈមនឹងការយល់ច្រឡំក្នុងការទំនាក់ទំនង។ សូមនិយាយឱ្យច្បាស់លាស់។';
+                    break;
+                case 4:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបឧបសគ្គក្នុងការងារ។ សូមរក្សាការផ្តោតអារម្មណ៍ និងភាពអត់ធ្មត់។';
+                    break;
+                case 5:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបការផ្លាស់ប្តូរដែលមិនបានរំពឹងទុក។ សូមត្រៀមខ្លួនសម្រាប់ភាពបត់បែន។';
+                    break;
+                case 6:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបបញ្ហាទាក់ទងនឹងទំនួលខុសត្រូវ។ សូមយកចិត្តទុកដាក់ចំពោះកាតព្វកិច្ចរបស់អ្នក។';
+                    break;
+                case 7:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបការភ័ន្តច្រឡំ ឬការសង្ស័យ។ សូមស្វែងរកការពិតមុននឹងជឿ។';
+                    break;
+                case 8:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបបញ្ហាផ្នែកហិរញ្ញវត្ថុ ឬអំណាច។ សូមប្រុងប្រយ័ត្នក្នុងការគ្រប់គ្រង។';
+                    break;
+                case 9:
+                    dangerPredictionText = 'ថ្ងៃនេះអ្នកអាចជួបស្ថានភាពដែលទាមទារការលះបង់។ សូមជៀសវាងការគិតតែពីប្រយោជន៍ផ្ទាល់ខ្លួន។';
+                    break;
+                default:
+                    dangerPredictionText = 'មិនអាចទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃបានទេ។';
+            }
+
+            document.getElementById('dailyDangerResult').textContent = `លេខគ្រោះថ្នាក់ប្រចាំថ្ងៃរបស់អ្នកគឺ ${predictedDailyDangerNumber}។ ${dangerPredictionText}`;
+            document.getElementById('getDailyDangerAdviceBtn').style.display = 'block';
+            document.getElementById('detailedDailyDangerPrediction').style.display = 'none';
+        };
+
+        // មុខងារសម្រាប់ទទួលបានដំបូន្មានលម្អិតពី Gemini API (សម្រាប់គ្រោះថ្នាក់ប្រចាំថ្ងៃ)
+        window.getDetailedDailyDangerAdvice = async function() {
+            const adviceDiv = document.getElementById('detailedDailyDangerPrediction');
+            adviceDiv.style.display = 'flex';
+            adviceDiv.innerHTML = '<div class="loading-spinner"></div><p class="ml-4">កំពុងបង្កើតដំបូន្មាន...</p>';
+
+            if (!userDailyDangerDate || predictedDailyDangerNumber === 0) {
+                adviceDiv.textContent = 'សូមទស្សន៍ទាយគ្រោះថ្នាក់ប្រចាំថ្ងៃជាមុនសិន ដើម្បីទទួលបានដំបូន្មានលម្អិត។';
+                return;
+            }
+
+            const prompt = `Based on the daily danger numerology number ${predictedDailyDangerNumber} for the date "${userDailyDangerDate}", which suggests the following potential challenges: "${document.getElementById('dailyDangerResult').textContent.split('។')[1].trim()}", provide a personalized paragraph of advice on how to avoid or mitigate these daily dangers and what precautions to take. Write this advice in Khmer.`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    adviceDiv.textContent = text;
+                } else {
+                    adviceDiv.textContent = 'មិនអាចបង្កើតដំបូន្មានបានទេ។ សូមសាកល្បងម្តងទៀត។';
+                }
+            } catch (error) {
+                console.error('Error fetching detailed daily danger advice:', error);
+                adviceDiv.textContent = 'មានបញ្ហាពេលបង្កើតដំបូន្មាន។ សូមសាកល្បងម្តងទៀត។';
+            }
+        };
+
+        // មុខងារសម្រាប់បង្ហាញ/លាក់ព័ត៌មានតារានិករ
+        window.toggleZodiacInfo = function() {
+            const zodiacInfoDiv = document.getElementById('zodiacInfoSection');
+            if (zodiacInfoDiv.style.display === 'none' || zodiacInfoDiv.style.display === '') {
+                zodiacInfoDiv.style.display = 'block';
+            } else {
+                zodiacInfoDiv.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>
